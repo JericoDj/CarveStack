@@ -1,39 +1,19 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import AppNavbar from '../components/AppNavbar';
+import AppFooter from '../components/AppFooter';
 
 const HowItWorks = () => {
     return (
-        <div className="relative overflow-x-hidden text-[#1F2937]">
+        <div className="relative text-[#1F2937] bg-gradient-to-br from-[#eef2f3] via-[#BFD3D6] to-[#f6f7f8] min-h-screen flex flex-col w-full">
 
-            <div className="liquid-blob bg-[#49A7D3] w-[600px] h-[600px] top-[-200px] left-[-100px] opacity-30"></div>
-            <div className="liquid-blob bg-[#BFD3D6] w-[700px] h-[700px] top-[40%] right-[-200px] opacity-40"></div>
-            <div className="liquid-blob bg-[#137fec] w-[500px] h-[500px] bottom-[-100px] left-[10%] opacity-20"></div>
-            <nav className="sticky top-0 z-50 w-full px-6 py-4">
-                <div className="glass-panel mx-auto max-w-[1200px] rounded-2xl px-6 py-3 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div
-                            className="flex items-center justify-center size-8 rounded-lg bg-gradient-to-br from-primary to-[#49A7D3] text-white shadow-lg">
-                            <span className="material-symbols-outlined text-lg">layers</span>
-                        </div>
-                        <h2 className="text-[#1F2937] text-xl font-bold tracking-tight">CarveStack</h2>
-                    </div>
-                    <div className="hidden md:flex items-center gap-8">
-                        <Link className="text-primary font-bold text-sm transition-colors" to="/how-it-works">How it Works</Link>
-                        <Link className="text-[#1F2937]/80 hover:text-primary font-medium text-sm transition-colors"
-                            to="#">Features</Link>
-                        <Link className="text-[#1F2937]/80 hover:text-primary font-medium text-sm transition-colors"
-                            to="/pricing">Pricing</Link>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <Link className="hidden sm:block text-[#1F2937] text-sm font-semibold hover:text-primary transition-colors"
-                            to="/dashboard">Log In</Link>
-                        <button
-                            className="primary-gradient text-white text-sm font-bold px-5 py-2.5 rounded-xl shadow-lg hover:shadow-primary/30 hover:scale-[1.02] transition-all duration-300">
-                            Get Started
-                        </button>
-                    </div>
-                </div>
-            </nav>
+            {/* Blob Backgrounds */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+                <div className="liquid-blob bg-[#49A7D3] w-[600px] h-[600px] top-[-200px] left-[-100px] opacity-30"></div>
+                <div className="liquid-blob bg-[#BFD3D6] w-[700px] h-[700px] top-[40%] right-[-200px] opacity-40"></div>
+                <div className="liquid-blob bg-[#137fec] w-[500px] h-[500px] bottom-[-100px] left-[10%] opacity-20"></div>
+            </div>
+            <AppNavbar />
             <header className="pt-16 pb-12 px-4 text-center max-w-[800px] mx-auto relative z-10">
                 <div
                     className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/40 border border-white/50 text-primary text-xs font-bold uppercase tracking-wider mb-6">
@@ -50,7 +30,7 @@ const HowItWorks = () => {
                     transparent AI pipeline.
                 </p>
             </header>
-            <main className="relative px-4 pb-32">
+            <main className="flex-grow relative px-4 pb-12">
                 <div className="max-w-[1200px] mx-auto flex flex-col gap-16 lg:gap-24 relative">
                     <div
                         className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-primary/20 to-transparent hidden lg:block -z-10">
@@ -260,33 +240,7 @@ const HowItWorks = () => {
                     </section>
                 </div>
             </main>
-            <footer className="py-12 border-t border-white/40 bg-white/30 backdrop-blur-md relative overflow-hidden">
-                <div className="max-w-[1200px] mx-auto px-6 text-center relative z-10">
-                    <h2 className="text-2xl font-bold text-[#1F2937] mb-6">Ready to carve your next project?</h2>
-                    <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-                        <button
-                            className="primary-gradient text-white h-12 px-8 rounded-xl font-bold text-base shadow-lg hover:shadow-primary/40 hover:-translate-y-1 transition-all duration-300">
-                            Get Started Free
-                        </button>
-                        <button
-                            className="glass-button h-12 px-8 rounded-xl font-bold text-[#1F2937] hover:bg-white/60 transition-all duration-300 border border-white/40">
-                            Read Documentation
-                        </button>
-                    </div>
-                    <div
-                        className="mt-12 flex flex-col md:flex-row justify-between items-center gap-6 pt-8 border-t border-gray-200/50">
-                        <div className="flex items-center gap-2">
-                            <div className="flex items-center justify-center size-6 rounded bg-primary text-white">
-                                <span className="material-symbols-outlined text-sm">layers</span>
-                            </div>
-                            <span className="text-[#1F2937] font-bold text-lg">CarveStack</span>
-                        </div>
-                        <div className="text-[#6B7280] text-sm font-medium">
-                            © 2024 CarveStack Inc. All rights reserved.
-                        </div>
-                    </div>
-                </div>
-            </footer>
+            <AppFooter />
 
 
         </div>

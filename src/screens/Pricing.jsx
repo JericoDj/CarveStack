@@ -1,38 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import AppNavbar from '../components/AppNavbar';
+import AppFooter from '../components/AppFooter';
 
 const Pricing = () => {
+    const [isAnnual, setIsAnnual] = useState(true);
     return (
-        <div className="min-h-screen w-full text-slate-900 bg-gradient-animate overflow-x-hidden selection:bg-primary/30 selection:text-primary-900">
+        <div className="relative bg-gradient-to-br from-[#eef2f3] via-[#BFD3D6] to-[#f6f7f8] min-h-screen flex flex-col selection:bg-primary/30 selection:text-primary-900 text-slate-900 w-full">
 
             {/*  Navbar  */}
-            <nav className="fixed top-0 left-0 w-full z-50 px-6 py-4">
-                <div className="max-w-7xl mx-auto glass-panel rounded-2xl px-6 py-3 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="size-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary backdrop-blur-sm border border-primary/20">
-                            <span className="material-symbols-outlined text-xl">layers</span>
-                        </div>
-                        <h1 className="text-xl font-bold tracking-tight text-slate-800">CarveStack</h1>
-                    </div>
-                    <div className="hidden md:flex items-center gap-8">
-                        <Link className="text-[#1F2937]/80 hover:text-primary font-medium text-sm transition-colors"
-                            to="/how-it-works">How it Works</Link>
-                        <Link className="text-[#1F2937]/80 hover:text-primary font-medium text-sm transition-colors"
-                            to="#">Features</Link>
-                        <Link className="text-primary font-bold text-sm transition-colors" to="/pricing">Pricing</Link>
-                        <Link className="text-sm font-medium text-slate-600 hover:text-primary transition-colors" to="#">Docs</Link>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <Link className="hidden sm:block text-[#1F2937] text-sm font-semibold hover:text-primary transition-colors"
-                            to="/dashboard">Log In</Link>
-                        <button className="glass-btn px-5 py-2 rounded-xl text-sm font-bold text-primary shadow-sm hover:shadow-md active:scale-95">
-                            Get Started
-                        </button>
-                    </div>
-                </div>
-            </nav>
+            <AppNavbar />
             {/*  Main Content  */}
-            <main className="relative z-10 pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+            <main className="flex-grow relative z-10 pt-32 pb-12 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-7xl mx-auto">
                     {/*  Hero Header  */}
                     <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
@@ -43,13 +22,18 @@ const Pricing = () => {
                         <p className="text-lg text-slate-600/90 max-w-2xl mx-auto font-medium">
                             Generate structured technical prompts instantly. Choose the tier that fits your development cycle perfectly.
                         </p>
-                        {/*  Toggle (Visual Only)  */}
+                        {/*  Toggle  */}
                         <div className="flex items-center justify-center gap-3 mt-8">
-                            <span className="text-sm font-medium text-slate-600">Monthly</span>
-                            <button className="relative w-12 h-7 rounded-full glass-panel border-primary/30 transition-colors duration-200 ease-in-out focus:outline-none">
-                                <span className="translate-x-6 inline-block w-5 h-5 transform bg-primary rounded-full shadow transition-transform duration-200 ease-in-out mt-[2px] ml-[2px]"></span>
+                            <span className={`text-sm font-medium transition-colors ${!isAnnual ? 'text-slate-900 font-bold' : 'text-slate-600'}`}>Monthly</span>
+                            <button
+                                onClick={() => setIsAnnual(!isAnnual)}
+                                className="relative inline-flex h-7 w-12 items-center rounded-full bg-white/50 backdrop-blur-md border border-primary/30 transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                            >
+                                <span className={`${isAnnual ? 'translate-x-6 bg-primary' : 'translate-x-1 bg-slate-400'} inline-block h-5 w-5 transform rounded-full shadow transition-transform duration-200 ease-in-out`}></span>
                             </button>
-                            <span className="text-sm font-bold text-slate-900">Yearly <span className="text-xs text-primary bg-primary/10 px-2 py-0.5 rounded-full ml-1 border border-primary/20">-20%</span></span>
+                            <span className={`text-sm transition-colors flex items-center ${isAnnual ? 'text-slate-900 font-bold' : 'text-slate-600 font-medium'}`}>
+                                Yearly <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full ml-1.5 border border-primary/20">-20%</span>
+                            </span>
                         </div>
                     </div>
                     {/*  Pricing Grid  */}
@@ -97,10 +81,12 @@ const Pricing = () => {
                                     <span className="material-symbols-outlined text-primary opacity-50">verified</span>
                                 </h3>
                                 <div className="flex items-baseline gap-1">
-                                    <span className="text-5xl font-bold text-slate-900 tracking-tight">$49</span>
+                                    <span className="text-5xl font-bold text-slate-900 tracking-tight">${isAnnual ? '39' : '49'}</span>
                                     <span className="text-slate-500 font-medium">/mo</span>
                                 </div>
-                                <p className="text-sm text-slate-600 mt-2">For professional developers shipping daily.</p>
+                                <p className="text-sm text-slate-600 mt-2">
+                                    {isAnnual ? 'Billed $468 annually' : 'Billed monthly'}
+                                </p>
                             </div>
                             <button className="w-full bg-primary hover:bg-primary/90 text-white py-3 rounded-xl font-bold mb-8 shadow-lg shadow-primary/25 transition-all active:scale-95">
                                 Go Pro
@@ -208,18 +194,7 @@ const Pricing = () => {
                     </div>
                 </div>
             </main>
-            {/*  Footer decoration  */}
-            <footer className="relative z-10 py-10 text-center text-slate-600/80 text-sm glass-panel border-t border-white/40">
-                <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
-                    <p>© 2024 CarveStack. All rights reserved.</p>
-                    <div className="flex gap-6">
-                        <Link className="hover:text-primary transition-colors" to="#">Privacy Policy</Link>
-                        <Link className="hover:text-primary transition-colors" to="#">Terms of Service</Link>
-                        <Link className="hover:text-primary transition-colors" to="#">Twitter</Link>
-                    </div>
-                </div>
-            </footer>
-
+            <AppFooter />
         </div>
     );
 };

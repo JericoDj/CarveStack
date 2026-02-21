@@ -38,6 +38,48 @@
   }
 }
 
+@layer base {
+  body {
+    overflow-x: clip;
+  }
+
+  @layer components {
+    .input-glass {
+      background: rgba(255, 255, 255, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+    }
+
+    .input-glass:focus-within {
+      background: rgba(255, 255, 255, 0.9);
+      border-color: #4aa6d3;
+      box-shadow: 0 0 0 4px rgba(74, 166, 211, 0.1);
+    }
+
+    /* Custom Gradient for Primary Button */
+    .btn-gradient {
+      background: linear-gradient(135deg, #BFD3D6 0%, #4aa6d3 100%);
+      transition: all 0.3s ease;
+    }
+
+    .btn-gradient:hover {
+      opacity: 0.95;
+      box-shadow: 0 4px 12px rgba(74, 166, 211, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .social-btn {
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      transition: all 0.2s ease;
+    }
+
+    .social-btn:hover {
+      background: rgba(255, 255, 255, 0.9);
+      transform: scale(1.05);
+    }
+  }
+}
+
 @layer utilities {
   .glass-panel {
     background: rgba(255, 255, 255, 0.65);
@@ -241,6 +283,97 @@
       width: 48px;
       height: 2px;
       background: linear-gradient(to right, rgba(19, 127, 236, 0.3), rgba(19, 127, 236, 0.1));
+    }
+  }
+
+  .glass-slab {
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .glass-slab:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.75);
+  }
+
+  .glass-icon-container {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.2) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.5), 0 10px 20px rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(4px);
+  }
+
+  .glass-chip {
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    transition: all 0.2s ease;
+  }
+
+  .glass-chip:hover {
+    background: rgba(255, 255, 255, 0.85);
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(19, 127, 236, 0.1);
+  }
+
+  .chip {
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    transition: all 0.2s ease;
+  }
+
+  .chip:hover {
+    background: rgba(255, 255, 255, 0.8);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+
+  .primary-gradient-text {
+    background: linear-gradient(135deg, #137fec 0%, #49A7D3 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .primary-gradient-bg {
+    background: linear-gradient(135deg, #137fec 0%, #49A7D3 100%);
+  }
+
+  @keyframes float {
+    0% {
+      transform: translateY(0px);
+    }
+
+    50% {
+      transform: translateY(-10px);
+    }
+
+    100% {
+      transform: translateY(0px);
+    }
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-float-delayed {
+    animation: float 7s ease-in-out infinite 1s;
+  }
+
+  @keyframes pulse-slow {
+    0% {
+      transform: scale(1);
+      opacity: 0.4;
+    }
+
+    100% {
+      transform: scale(1.1);
+      opacity: 0.6;
     }
   }
 }
