@@ -68,7 +68,7 @@ const Dashboard = () => {
                     </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <div className="glass-card p-8 rounded-2xl group cursor-pointer relative overflow-hidden flex flex-col justify-between h-full min-h-[320px]">
+                    <Link to="/builder/1" className="glass-card p-8 rounded-2xl group cursor-pointer relative overflow-hidden flex flex-col justify-between h-full min-h-[320px]">
                         <div>
                             <div className="flex items-start justify-between mb-6">
                                 <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center text-primary shadow-sm">
@@ -97,8 +97,8 @@ const Dashboard = () => {
                             </div>
                             <p className="text-xs text-slate-400 font-medium">Edited 2h ago</p>
                         </div>
-                    </div>
-                    <div className="glass-card p-8 rounded-2xl group cursor-pointer relative overflow-hidden flex flex-col justify-between h-full min-h-[320px]">
+                    </Link>
+                    <Link to="/builder/2" className="glass-card p-8 rounded-2xl group cursor-pointer relative overflow-hidden flex flex-col justify-between h-full min-h-[320px]">
                         <div>
                             <div className="flex items-start justify-between mb-6">
                                 <div className="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-sm">
@@ -125,8 +125,8 @@ const Dashboard = () => {
                             </div>
                             <p className="text-xs text-slate-400 font-medium">Edited yesterday</p>
                         </div>
-                    </div>
-                    <div className="glass-card p-8 rounded-2xl group cursor-pointer relative overflow-hidden flex flex-col justify-between h-full min-h-[320px]">
+                    </Link>
+                    <Link to="/builder/3" className="glass-card p-8 rounded-2xl group cursor-pointer relative overflow-hidden flex flex-col justify-between h-full min-h-[320px]">
                         <div>
                             <div className="flex items-start justify-between mb-6">
                                 <div className="w-14 h-14 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-600 shadow-sm">
@@ -153,7 +153,7 @@ const Dashboard = () => {
                             </div>
                             <p className="text-xs text-slate-400 font-medium">Edited 3 days ago</p>
                         </div>
-                    </div>
+                    </Link>
                     <button className="glass-card p-8 rounded-2xl border-dashed border-2 border-slate-300 bg-white/20 hover:bg-white/50 hover:border-primary flex flex-col items-center justify-center gap-6 group transition-all h-full min-h-[320px]">
                         <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform group-hover:shadow-xl">
                             <span className="material-symbols-outlined text-4xl text-primary">add</span>

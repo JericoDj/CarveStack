@@ -1,8 +1,10 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuthDialog } from '../contexts/AuthDialogContext';
 
 const AuthDialog = () => {
     const { dialogType, closeDialog, openDialog } = useAuthDialog();
+    const navigate = useNavigate();
 
     if (!dialogType) return null;
 
@@ -25,7 +27,7 @@ const AuthDialog = () => {
                 <p className="mt-2 text-sm font-medium text-slate-500">Welcome back to your workspace</p>
             </div>
 
-            <form className="flex flex-col gap-5" onSubmit={(e) => { e.preventDefault(); closeDialog(); }}>
+            <form className="flex flex-col gap-5" onSubmit={(e) => { e.preventDefault(); closeDialog(); navigate('/dashboard'); }}>
                 <div className="flex flex-col gap-1.5">
                     <label className="ml-1 text-sm font-semibold text-slate-700" htmlFor="email-login">Email</label>
                     <div className="input-glass group flex items-center rounded-full px-4 py-3 transition-all duration-200">
@@ -103,7 +105,7 @@ const AuthDialog = () => {
                     <p className="text-slate-500 text-sm font-medium">Join CarveStack to build better structures.</p>
                 </div>
 
-                <form className="space-y-5" onSubmit={(e) => { e.preventDefault(); closeDialog(); }}>
+                <form className="space-y-5" onSubmit={(e) => { e.preventDefault(); closeDialog(); navigate('/dashboard'); }}>
                     <div className="space-y-1.5">
                         <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider ml-1" htmlFor="name">Full Name</label>
                         <div className="relative">
