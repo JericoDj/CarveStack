@@ -152,7 +152,7 @@ export const ConfigOptions = {
             },
             {
                 id: 'architecture',
-                title: 'Architecture Pattern',
+                title: 'Architecture Patterns',
                 icon: 'account_tree',
                 type: 'categories',
                 options: [
@@ -319,7 +319,7 @@ export const ConfigOptions = {
                 type: 'categories',
                 options: [
                     { category: 'Low Complexity', items: ['MVC (Good for Small apps)'] },
-                    { category: 'Medium Complexity', items: ['MVVM (Good for Most apps)', 'Feature-First (Good for Growing apps)'] },
+                    { category: 'Medium Complexity', items: ['MVVM (Good for Most apps)', 'Layered Architecture', 'Feature-First (Good for Growing apps)'] },
                     { category: 'Medium-High Complexity', items: ['Bloc (Good for Complex state)'] },
                     { category: 'High Complexity', items: ['Clean Architecture (Good for Enterprise)'] }
                 ]
@@ -463,7 +463,7 @@ export const ConfigOptions = {
                 options: [
                     { category: 'Language Options', items: ['TypeScript (Node.js)', 'Python', 'Go', 'Java / Kotlin', 'C# (.NET)', 'PHP', 'Rust'] },
                     { category: 'Framework Options', items: ['NestJS', 'Express', 'Fastify', 'FastAPI', 'Django', 'Gin', 'Fiber', 'Spring Boot', 'ASP.NET Core'] },
-                    { category: 'Architecture Pattern', items: ['Modular Monolith', 'Clean Architecture', 'Microservices', 'Event-Driven', 'Serverless Architecture'] },
+                    { category: 'Architectural Patterns', items: ['Layered Architecture', 'Modular Monolith', 'Clean Architecture', 'Microservices', 'Event-Driven', 'Serverless Architecture'] },
                     { category: 'API Style', items: ['REST', 'GraphQL', 'tRPC', 'gRPC'] }
                 ]
             },

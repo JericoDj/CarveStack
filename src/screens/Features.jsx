@@ -614,6 +614,36 @@ export default function Features() {
                             </div>
                         </div>
                     </article>
+
+                    {/* Layered Architecture Section */}
+                    <article className="glass-slab rounded-3xl p-8 md:p-12 relative overflow-hidden group mt-4">
+                        <div
+                            className="absolute -right-20 -top-20 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl group-hover:bg-cyan-500/20 transition-colors duration-500">
+                        </div>
+                        <div className="grid lg:grid-cols-[200px_1fr] gap-8 items-start relative z-10">
+                            <div
+                                className="glass-icon-container w-32 h-32 md:w-40 md:h-40 rounded-2xl flex items-center justify-center rotate-3 group-hover:rotate-0 transition-transform duration-500 mx-auto lg:mx-0">
+                                <span
+                                    className="material-symbols-outlined text-6xl md:text-7xl text-cyan-600 drop-shadow-sm">account_tree</span>
+                            </div>
+                            <div className="flex flex-col gap-6">
+                                <div>
+                                    <h3 className="text-2xl md:text-3xl font-bold text-text-main mb-3">Service-Layer Architecture</h3>
+                                    <p className="text-text-muted text-lg leading-relaxed max-w-3xl">
+                                        Implement a clean, separation-of-concerns based architecture with distinct layers for routing, business logic, data access, and models.
+                                    </p>
+                                </div>
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                    {['Controllers & Route Isolation', 'Business Service Layer', 'Data Repository Pattern', 'Data Transfer Objects (DTOs)', 'Schema Validation Layer', 'Stateful Middleware Flow', 'Dependency Injection Configuration', 'Global Error Handling Strategy', 'Automated Unit Testing', 'Swagger / OpenAPI Documentation', 'Modular Logic Decoupling', 'Robust Data Access Layer'].map(chip => (
+                                        <div key={chip} className="px-3 py-1.5 rounded-xl text-sm font-medium border bg-white/60 border-gray-200 text-gray-700 flex items-center gap-1.5 shadow-sm hover:bg-white hover:shadow-md transition-all">
+                                            <span className="material-symbols-outlined text-[16px] text-cyan-600">check_circle</span>
+                                            {chip}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </article>
                 </main>
 
             </div>
