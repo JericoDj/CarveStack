@@ -24,7 +24,7 @@ const ProjectBuilder = () => {
                     initialConfig[step.id] = [];
                 } else if (step.type === 'categories') {
                     if (step.options && step.options.length > 0 && step.options[0].items.length > 0) {
-                        initialConfig[step.id] = step.options[0].items[0];
+                        initialConfig[step.id] = [step.options[0].items[0]]; // Make it an array for multi-select
                     }
                 } else if (step.type === 'grid') {
                     if (step.options && step.options.length > 0) {
@@ -97,6 +97,36 @@ const ProjectBuilder = () => {
 
             // Handle cascading dependencies
             const dependentStep = ConfigOptions[intent].steps.find(s => s.dependsOn === stepId);
+            // Web specific dependency resets
+            if (intent === 'web') {
+                if (stepId === 'framework') {
+                    // Reset rendering if no longer allowed
+                    const allowedRendering = getWebOptions('rendering', newConfig);
+                    if (!allowedRendering.includes(newConfig.rendering)) {
+                        newConfig.rendering = allowedRendering[0];
+                    }
+                    // Reset styling if no longer allowed
+                    const allowedStyling = getWebOptions('styling', newConfig);
+                    if (!allowedStyling.includes(newConfig.styling)) {
+                        newConfig.styling = '';
+                    }
+                    // Reset state if no longer allowed
+                    const allowedState = getWebOptions('state', newConfig);
+                    if (Array.isArray(newConfig.state)) {
+                        newConfig.state = newConfig.state.filter(s => allowedState.includes(s));
+                    } else if (newConfig.state && !allowedState.includes(newConfig.state)) {
+                        newConfig.state = '';
+                    }
+                }
+                if (stepId === 'rendering') {
+                    // Reset auth if no longer allowed
+                    const allowedAuth = getWebOptions('auth', newConfig);
+                    if (!allowedAuth.includes(newConfig.auth)) {
+                        newConfig.auth = allowedAuth[0];
+                    }
+                }
+            }
+
             if (dependentStep) {
                 if (dependentStep.type === 'tags_depends_on') {
                     const dependencyKey = typeof value === 'string' ? value : value.id;
@@ -106,6 +136,19 @@ const ProjectBuilder = () => {
                     } else {
                         newConfig[dependentStep.id] = '';
                     }
+                }
+            }
+
+            // Mobile specific dependency resets & auto-selection
+            if (intent === 'mobile') {
+                const frameworkChanged = (stepId === 'framework') || (stepId === 'language');
+                if (frameworkChanged) {
+                    ['architecture', 'state', 'routing', 'local_storage', 'database'].forEach(step => {
+                        const allowed = getMobileOptions(step, newConfig);
+                        if (!newConfig[step] || !allowed.includes(newConfig[step])) {
+                            newConfig[step] = allowed[0] || '';
+                        }
+                    });
                 }
             }
             return newConfig;
@@ -135,6 +178,229 @@ const ProjectBuilder = () => {
                 modulePrompts: { ...currentPrompts, [instanceId]: value }
             };
         });
+    };
+
+    const getArchitectureOptions = (frameworkId, languageId) => {
+        const logic = {
+            allowed: ['Classic Monolith', 'Classic MVC', 'Modular Monolith', 'Layered Architecture', 'Clean Architecture', 'Hexagonal Architecture', 'Onion Architecture', 'Microservices', 'Event-Driven Architecture', 'Serverless Architecture', 'CQRS', 'Domain-Driven Design (DDD)'],
+            recommended: []
+        };
+        switch (frameworkId) {
+            case 'express':
+            case 'fastify':
+            case 'koa':
+                if (languageId === 'ts') {
+                    logic.allowed.push('API Service Architecture (Router → Service → Repository)');
+                    logic.recommended = ['API Service Architecture (Router → Service → Repository)'];
+                } else {
+                    logic.recommended = ['Classic MVC'];
+                }
+                break;
+            case 'nestjs':
+                logic.recommended = ['Layered Architecture', 'Clean Architecture', 'Domain-Driven Design (DDD)', 'CQRS', 'Microservices'];
+                break;
+            case 'hono':
+                logic.allowed = ['Classic Monolith', 'Classic MVC', 'Modular Monolith', 'Layered Architecture', 'Clean Architecture', 'Hexagonal Architecture', 'Onion Architecture', 'Event-Driven Architecture', 'Serverless Architecture', 'Domain-Driven Design (DDD)'];
+                logic.recommended = ['Classic MVC', 'Serverless Architecture'];
+                break;
+            case 'nextjs':
+            case 'remix':
+                logic.allowed = ['Classic Monolith', 'Modular Monolith', 'Serverless Architecture'];
+                logic.recommended = [];
+                break;
+            case 'fastapi':
+                logic.allowed = ['Classic Monolith', 'Layered Architecture', 'Clean Architecture', 'Hexagonal Architecture', 'Onion Architecture', 'Microservices', 'Event-Driven Architecture', 'Serverless Architecture', 'CQRS', 'Domain-Driven Design (DDD)', 'API Service Architecture (Router → Service → Repository)'];
+                logic.recommended = ['API Service Architecture (Router → Service → Repository)'];
+                break;
+            case 'django':
+                logic.allowed = ['Modular Monolith', 'Layered Architecture', 'Domain-Driven Design (DDD)', 'Django MVT (Model View Template)'];
+                logic.recommended = ['Django MVT (Model View Template)'];
+                break;
+            case 'drf':
+                logic.allowed = ['Layered Architecture', 'Clean Architecture', 'Domain-Driven Design (DDD)', 'REST Resource Architecture'];
+                logic.recommended = ['REST Resource Architecture'];
+                break;
+            case 'flask':
+                logic.allowed = ['Classic MVC', 'Modular Monolith', 'Clean Architecture', 'Hexagonal Architecture', 'Microservices', 'Event-Driven Architecture', 'Serverless Architecture', 'Microframework MVC'];
+                logic.recommended = ['Microframework MVC'];
+                break;
+            case 'spring':
+                if (languageId === 'kotlin') {
+                    logic.allowed = ['Layered Architecture', 'Modular Monolith', 'Clean Architecture', 'Hexagonal Architecture', 'Onion Architecture', 'Microservices', 'CQRS', 'Domain-Driven Design (DDD)', 'Event-Driven Architecture', 'Coroutine Service Architecture'];
+                    logic.recommended = ['Coroutine Service Architecture'];
+                } else {
+                    logic.allowed = ['Layered Architecture', 'Modular Monolith', 'Clean Architecture', 'Hexagonal Architecture', 'Onion Architecture', 'Microservices', 'Event-Driven Architecture', 'CQRS', 'Domain-Driven Design (DDD)', 'Serverless Architecture', 'Spring Layered Architecture (Controller → Service → Repository)', 'Ports and Adapters (Enterprise Hexagonal)', 'Enterprise DDD Aggregates'];
+                    logic.recommended = ['Spring Layered Architecture (Controller → Service → Repository)', 'Ports and Adapters (Enterprise Hexagonal)', 'Enterprise DDD Aggregates'];
+                }
+                break;
+            case 'spring_webflux':
+                logic.allowed = ['Microservices', 'Event-Driven Architecture', 'CQRS', 'Domain-Driven Design (DDD)', 'Serverless Architecture', 'Reactive Streams Architecture', 'Coroutine Service Architecture'];
+                logic.recommended = ['Reactive Streams Architecture'];
+                break;
+            case 'ktor':
+                logic.allowed = ['Modular Monolith', 'Layered Architecture', 'Clean Architecture', 'Hexagonal Architecture', 'Microservices', 'Event-Driven Architecture', 'Serverless Architecture', 'Domain-Driven Design (DDD)', 'Coroutine Service Architecture', 'Functional Routing Architecture'];
+                logic.recommended = ['Coroutine Service Architecture', 'Functional Routing Architecture'];
+                break;
+            case 'http4k':
+                logic.allowed = ['Clean Architecture', 'Hexagonal Architecture', 'Microservices', 'Serverless Architecture', 'Handler Pipeline Architecture', 'Functional Routing Architecture'];
+                logic.recommended = ['Handler Pipeline Architecture', 'Functional Routing Architecture'];
+                break;
+            case 'micronaut':
+                logic.allowed = ['Clean Architecture', 'Hexagonal Architecture', 'Microservices', 'Event-Driven Architecture', 'CQRS', 'Domain-Driven Design (DDD)', 'Serverless Architecture', 'Ports and Adapters (Enterprise Hexagonal)', 'Cloud-Native Microservices'];
+                logic.recommended = ['Ports and Adapters (Enterprise Hexagonal)', 'Cloud-Native Microservices'];
+                break;
+            case 'quarkus':
+                logic.allowed = ['Microservices', 'Event-Driven Architecture', 'CQRS', 'Domain-Driven Design (DDD)', 'Serverless Architecture', 'Reactive Architecture', 'Cloud-Native Microservices', 'Ports and Adapters (Enterprise Hexagonal)'];
+                logic.recommended = ['Reactive Architecture', 'Cloud-Native Microservices'];
+                break;
+            case 'aspnet_mvc':
+                logic.allowed = ['Classic MVC', 'Layered Architecture', 'Modular Monolith', 'Clean Architecture', 'Domain-Driven Design (DDD)', 'Feature Folder Architecture'];
+                logic.recommended = ['Feature Folder Architecture'];
+                break;
+            case 'aspnet_webapi':
+                logic.allowed = ['Layered Architecture', 'Clean Architecture', 'Hexagonal Architecture', 'Onion Architecture', 'CQRS', 'Domain-Driven Design (DDD)', 'Microservices', 'Event-Driven Architecture', 'Mediator Pattern Architecture', 'Vertical Slice Architecture'];
+                logic.recommended = ['Mediator Pattern Architecture', 'Vertical Slice Architecture'];
+                break;
+            case 'aspnet_minimalapi':
+                logic.allowed = ['Microservices', 'Event-Driven Architecture', 'Serverless Architecture', 'CQRS', 'API Endpoint Architecture', 'Vertical Slice Architecture'];
+                logic.recommended = ['API Endpoint Architecture', 'Vertical Slice Architecture'];
+                break;
+            case 'blazor_server':
+                logic.allowed = ['Modular Monolith', 'Clean Architecture', 'Domain-Driven Design (DDD)', 'Component Architecture', 'Feature Folder Architecture'];
+                logic.recommended = ['Component Architecture'];
+                break;
+            case 'blazor_wasm':
+                logic.allowed = ['Serverless Architecture', 'Microservices', 'Event-Driven Architecture', 'Component Architecture', 'API Endpoint Architecture'];
+                logic.recommended = ['Component Architecture'];
+                break;
+            case 'gin':
+                logic.allowed = ['Modular Monolith', 'Clean Architecture', 'Hexagonal Architecture', 'Microservices', 'Event-Driven Architecture', 'Serverless Architecture', 'Domain-Driven Design (DDD)', 'Handler Service Repository Pattern', 'Usecase Architecture'];
+                logic.recommended = ['Handler Service Repository Pattern', 'Usecase Architecture'];
+                break;
+            case 'fiber':
+                logic.allowed = ['Classic MVC', 'Modular Monolith', 'Clean Architecture', 'Microservices', 'Serverless Architecture', 'Handler Service Repository Pattern', 'Package-Oriented Architecture'];
+                logic.recommended = ['Handler Service Repository Pattern'];
+                break;
+            case 'echo':
+                logic.allowed = ['Clean Architecture', 'Hexagonal Architecture', 'Microservices', 'Event-Driven Architecture', 'Domain-Driven Design (DDD)', 'Lightweight Hexagonal', 'Go Clean Architecture'];
+                logic.recommended = ['Lightweight Hexagonal', 'Go Clean Architecture'];
+                break;
+            case 'chi':
+                logic.allowed = ['Clean Architecture', 'Hexagonal Architecture', 'Microservices', 'Serverless Architecture', 'Package-Oriented Architecture', 'Usecase Architecture'];
+                logic.recommended = ['Package-Oriented Architecture', 'Usecase Architecture'];
+                break;
+            case 'laravel':
+                logic.allowed = ['Classic MVC', 'Modular Monolith', 'Layered Architecture', 'Clean Architecture', 'Hexagonal Architecture', 'Domain-Driven Design (DDD)', 'CQRS', 'Microservices', 'Event-Driven Architecture', 'Laravel Service Layer Architecture', 'Laravel Action Pattern', 'Controller Service Repository Pattern'];
+                logic.recommended = ['Laravel Service Layer Architecture', 'Laravel Action Pattern', 'Controller Service Repository Pattern'];
+                break;
+            case 'symfony':
+                logic.allowed = ['Modular Monolith', 'Layered Architecture', 'Clean Architecture', 'Hexagonal Architecture', 'Domain-Driven Design (DDD)', 'CQRS', 'Microservices', 'Event-Driven Architecture', 'Symfony Bundle Architecture', 'Controller Service Repository Pattern'];
+                logic.recommended = ['Symfony Bundle Architecture'];
+                break;
+            case 'codeigniter':
+                logic.allowed = ['Classic MVC', 'Modular Monolith', 'PHP MVC Architecture'];
+                logic.recommended = ['PHP MVC Architecture'];
+                break;
+            case 'slim':
+                logic.allowed = ['Clean Architecture', 'Hexagonal Architecture', 'Microservices', 'Serverless Architecture', 'Controller Service Repository Pattern'];
+                logic.recommended = ['Controller Service Repository Pattern'];
+                break;
+            case 'rails':
+                logic.allowed = ['Classic MVC', 'Modular Monolith', 'Layered Architecture', 'Clean Architecture', 'Hexagonal Architecture', 'Microservices', 'Domain-Driven Design (DDD)', 'Rails MVC Convention Architecture', 'RESTful Resource Architecture', 'Service Object Pattern'];
+                logic.recommended = ['Rails MVC Convention Architecture', 'RESTful Resource Architecture', 'Service Object Pattern'];
+                break;
+            case 'sinatra':
+                logic.allowed = ['Classic MVC', 'Modular Monolith', 'Microservices', 'Serverless Architecture', 'API-First Architecture'];
+                logic.recommended = ['API-First Architecture'];
+                break;
+            case 'hanami':
+                logic.allowed = ['Modular Monolith', 'Clean Architecture', 'Hexagonal Architecture', 'Domain-Driven Design (DDD)', 'Microservices', 'Hanami Modular Architecture', 'Service Object Pattern'];
+                logic.recommended = ['Hanami Modular Architecture'];
+                break;
+            case 'grape':
+                logic.allowed = ['Microservices', 'Serverless Architecture', 'Clean Architecture', 'API-First Architecture', 'RESTful Resource Architecture'];
+                logic.recommended = ['API-First Architecture', 'RESTful Resource Architecture'];
+                break;
+            case 'actix':
+                logic.allowed = ['Clean Architecture', 'Hexagonal Architecture', 'Microservices', 'Event-Driven Architecture', 'Serverless Architecture', 'Domain-Driven Design (DDD)', 'Actor Model Architecture', 'Trait-Driven Clean Architecture'];
+                logic.recommended = ['Actor Model Architecture', 'Trait-Driven Clean Architecture'];
+                break;
+            case 'axum':
+                logic.allowed = ['Clean Architecture', 'Hexagonal Architecture', 'Microservices', 'Serverless Architecture', 'Domain-Driven Design (DDD)', 'Handler Extractor Pattern', 'Domain Module Architecture'];
+                logic.recommended = ['Handler Extractor Pattern', 'Domain Module Architecture'];
+                break;
+            case 'rocket':
+                logic.allowed = ['Classic MVC', 'Modular Monolith', 'Clean Architecture', 'Hexagonal Architecture', 'Domain Module Architecture'];
+                logic.recommended = ['Domain Module Architecture'];
+                break;
+            case 'warp':
+                logic.allowed = ['Clean Architecture', 'Hexagonal Architecture', 'Microservices', 'Serverless Architecture', 'Functional Pipeline Architecture', 'Trait-Driven Clean Architecture'];
+                logic.recommended = ['Functional Pipeline Architecture'];
+                break;
+            default:
+                break;
+        }
+        return logic;
+    };
+
+    const getWebOptions = (stepId, config) => {
+        const { framework, rendering } = config;
+
+        if (stepId === 'rendering') {
+            if (['nextjs', 'remix', 'nuxt3', 'sveltekit', 'solidstart'].includes(framework)) {
+                return ['SSR', 'SSG', 'Hybrid', 'Edge', 'Partial Hydration'];
+            }
+            return ['CSR', 'SSG'];
+        }
+
+        if (stepId === 'styling') {
+            const reactEcosystem = ['react', 'nextjs', 'remix', 'astro', 'react_rescript'];
+            if (reactEcosystem.includes(framework)) {
+                return ['TailwindCSS', 'CSS Modules', 'Styled Components', 'Emotion', 'ShadCN UI', 'Material UI', 'Chakra UI', 'Mantine'];
+            }
+            if (['vue3', 'nuxt3', 'vite_vue'].includes(framework)) {
+                return ['TailwindCSS', 'SCSS', 'Vuetify', 'Naive UI'];
+            }
+            if (framework === 'angular') {
+                return ['TailwindCSS', 'SCSS', 'Angular Material'];
+            }
+            if (framework === 'flutter_web') {
+                return ['Flutter Material / Cupertino'];
+            }
+            if (framework === 'elm_spa') {
+                return ['Elm UI styling'];
+            }
+            return ['Plain CSS', 'TailwindCSS'];
+        }
+
+        if (stepId === 'state') {
+            const reactEcosystem = ['react', 'nextjs', 'remix', 'astro', 'solidjs', 'solidstart', 'react_rescript'];
+            if (reactEcosystem.includes(framework)) {
+                return ['Context API', 'Redux Toolkit', 'Zustand', 'Jotai', 'Recoil', 'TanStack Query'];
+            }
+            if (['vue3', 'nuxt3', 'vite_vue'].includes(framework)) {
+                return ['Pinia', 'Vuex', 'TanStack Query'];
+            }
+            if (framework === 'angular') {
+                return ['NgRx', 'Signals'];
+            }
+            if (['svelte', 'sveltekit'].includes(framework)) {
+                return ['Stores'];
+            }
+            if (framework === 'flutter_web') {
+                return ['Provider', 'Riverpod', 'Bloc'];
+            }
+            return ['Context API'];
+        }
+
+        if (stepId === 'auth') {
+            if (['SSR', 'Hybrid'].includes(rendering)) {
+                return ['HTTP Only Cookie Session', 'Refresh Token Rotation'];
+            }
+            return ['JWT Storage', 'OAuth Redirect', 'PKCE Flow'];
+        }
+
+        return null;
     };
 
     // Render Helpers
@@ -180,14 +446,39 @@ const ProjectBuilder = () => {
                     </div>
                 );
             case 'tags':
+                let itemsToRender = step.options;
+                let isMulti = false;
+
+                // Web specific logic
+                if (intent === 'web') {
+                    const filtered = getWebOptions(step.id, config);
+                    if (filtered) {
+                        itemsToRender = filtered;
+                    }
+
+                    if (step.id === 'state' && (config.language === 'js' || config.language === 'ts')) {
+                        isMulti = true;
+                    }
+                }
+
+                // Mobile specific logic
+                if (intent === 'mobile') {
+                    const filtered = getMobileOptions(step.id, config);
+                    if (filtered && filtered.length > 0) {
+                        itemsToRender = filtered;
+                    }
+                }
+
                 return (
                     <div className="flex flex-wrap gap-3 animate-fade-in-up">
-                        {step.options.map(opt => {
-                            const isSelected = config[step.id] === opt;
+                        {itemsToRender.map(opt => {
+                            const isSelected = isMulti
+                                ? (config[step.id] || []).includes(opt)
+                                : config[step.id] === opt;
                             return (
                                 <button
                                     key={opt}
-                                    onClick={() => handleConfigChange(step.id, opt)}
+                                    onClick={() => handleConfigChange(step.id, opt, isMulti)}
                                     className={`px-6 py-3 rounded-xl text-sm font-bold transition-all border-2 ${isSelected ? 'bg-cyan-50 border-cyan-400 text-cyan-700 shadow-sm' : 'bg-white border-slate-100 text-slate-600 hover:border-slate-300 hover:shadow-sm'}`}
                                 >
                                     {opt}
@@ -218,25 +509,43 @@ const ProjectBuilder = () => {
             case 'categories':
                 return (
                     <div className="flex flex-col gap-6 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-                        {step.options.map((cat, idx) => (
-                            <div key={idx}>
-                                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">{cat.category}</h4>
-                                <div className="flex flex-wrap gap-2">
-                                    {cat.items.map(opt => {
-                                        const isSelected = config[step.id] === opt;
-                                        return (
-                                            <button
-                                                key={opt}
-                                                onClick={() => handleConfigChange(step.id, opt)}
-                                                className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all border ${isSelected ? 'bg-slate-800 border-slate-800 text-white shadow-md' : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 hover:border-slate-300'}`}
-                                            >
-                                                {opt}
-                                            </button>
-                                        );
-                                    })}
+                        {step.options.map((cat, idx) => {
+                            let itemsToRender = cat.items;
+                            let archLogic = null;
+
+                            if (step.id === 'architecture') {
+                                archLogic = getArchitectureOptions(config.framework, config.language);
+                                if (archLogic) {
+                                    itemsToRender = itemsToRender.filter(opt => archLogic.allowed.includes(opt));
+                                }
+                            }
+
+                            if (itemsToRender.length === 0) return null;
+
+                            return (
+                                <div key={idx}>
+                                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">{cat.category}</h4>
+                                    <div className="flex flex-wrap gap-2">
+                                        {itemsToRender.map(opt => {
+                                            const currentSelections = config[step.id] || [];
+                                            const isSelected = currentSelections.includes(opt);
+                                            const isRecommended = archLogic ? archLogic.recommended.includes(opt) : false;
+
+                                            return (
+                                                <button
+                                                    key={opt}
+                                                    onClick={() => handleConfigChange(step.id, opt, true)} // Pass isMulti=true
+                                                    className={`flex items-center px-4 py-2 rounded-lg text-xs font-semibold transition-all border ${isSelected ? 'bg-slate-800 border-slate-800 text-white shadow-md' : isRecommended ? 'bg-amber-50 border-amber-300 text-amber-900 hover:bg-amber-100 hover:border-amber-400 shadow-sm' : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 hover:border-slate-300'}`}
+                                                >
+                                                    {isRecommended && <span className={`material-symbols-outlined text-[14px] mr-1.5 ${isSelected ? 'text-amber-400' : 'text-amber-500'}`}>star</span>}
+                                                    {opt}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 );
             case 'features':
@@ -337,6 +646,51 @@ const ProjectBuilder = () => {
         }
     };
 
+    const getMobileOptions = (stepId, config) => {
+        const { framework } = config;
+
+        switch (stepId) {
+            case 'architecture':
+                if (framework === 'flutter') return ['Classic MVC', 'MVVM', 'MVP', 'Layered Architecture', 'Clean Architecture', 'Feature-First Architecture', 'DDD Lite', 'TDD Friendly Structure'];
+                if (framework === 'react_native') return ['Component Architecture', 'Feature Folder Architecture', 'MVVM', 'Clean Architecture', 'Redux Architecture', 'Atomic Design Structure'];
+                if (framework === 'maui') return ['MVVM', 'Clean Architecture', 'Layered Architecture'];
+                if (framework === 'android_native') return ['MVVM', 'Clean Architecture', 'MVI', 'Layered Architecture'];
+                if (framework === 'ios_native') return ['MVVM', 'VIPER', 'Clean Architecture', 'MVC (Apple UIKit MVC)'];
+                break;
+            case 'state':
+                if (framework === 'flutter') return ['setState', 'Provider', 'Riverpod', 'GetX', 'Bloc / Cubit', 'Redux', 'MobX'];
+                if (framework === 'react_native') return ['useState / Context', 'Redux Toolkit', 'Zustand', 'Jotai', 'Recoil', 'MobX', 'TanStack Query'];
+                if (framework === 'maui') return ['MVVM Binding', 'Redux.NET'];
+                if (framework === 'android_native') return ['ViewModel + LiveData', 'Flow / StateFlow', 'Redux Kotlin'];
+                if (framework === 'ios_native') return ['ObservableObject', 'Combine', 'ReactorKit'];
+                break;
+            case 'routing':
+                if (framework === 'flutter') return ['Navigator 1.0', 'Navigator 2.0', 'GoRouter', 'AutoRoute', 'Beamer', 'GetX Routing'];
+                if (framework === 'react_native') return ['React Navigation', 'Expo Router', 'React Native Navigation (Wix)'];
+                if (framework === 'maui') return ['Shell Navigation', 'NavigationPage'];
+                if (framework === 'android_native') return ['Jetpack Navigation'];
+                if (framework === 'ios_native') return ['UIKit Navigation', 'SwiftUI NavigationStack'];
+                break;
+            case 'local_storage':
+                if (framework === 'flutter') return ['SharedPreferences', 'Hive', 'Isar', 'MMKV', 'Secure Storage'];
+                if (framework === 'react_native') return ['AsyncStorage', 'MMKV Storage', 'SecureStore (Expo)', 'Encrypted Storage'];
+                if (framework === 'maui') return ['Preferences', 'SecureStorage'];
+                if (framework === 'android_native') return ['SharedPreferences', 'Room Cache', 'DataStore'];
+                if (framework === 'ios_native') return ['UserDefaults', 'Keychain', 'CoreData Local'];
+                break;
+            case 'database':
+                if (framework === 'flutter') return ['SQLite', 'Isar', 'Hive', 'ObjectBox', 'Firestore', 'Supabase'];
+                if (framework === 'react_native') return ['SQLite', 'WatermelonDB', 'Realm', 'Firestore', 'Supabase'];
+                if (framework === 'maui') return ['SQLite', 'Realm'];
+                if (framework === 'android_native') return ['Room', 'SQLite', 'Realm', 'Firestore'];
+                if (framework === 'ios_native') return ['CoreData', 'Realm', 'SQLite', 'Firestore'];
+                break;
+            default:
+                break;
+        }
+        return [];
+    };
+
     const renderSynopsisItem = (step) => {
         if (step.type === 'features') return null; // handled separately
 
@@ -360,8 +714,12 @@ const ProjectBuilder = () => {
                     const opt = step.options.find(o => o.id === val);
                     return opt ? opt.name : val;
                 }).join(', ');
+            } else if (step.type === 'categories') { // Support array display for categories
+                displayValue = displayValue.join(', ');
+            } else if (step.type === 'tags' && Array.isArray(displayValue)) {
+                displayValue = displayValue.join(', ');
             }
-            // For 'categories' and 'tags', the displayValue is already the string itself.
+            // For 'tags', the displayValue is already the string itself.
         }
 
         return (
